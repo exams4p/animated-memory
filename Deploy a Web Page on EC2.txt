@@ -1,0 +1,485 @@
+Exp 1:Deploy a Web Page on EC2
+☁️ Step 1: Launch EC2 Instance
+👉 Login to AWS Console → Open EC2 Dashboard
+Create Instance:
+Click Launch Instance
+Fill Details:
+Name: MyWebServer
+AMI (OS):
+Select Amazon Linux (Free tier eligible)
+Instance Type:
+Select t2.micro
+Key Pair:
+Select Proceed without key pair (since using browser terminal)
+Network Settings (Important):
+ Click Edit and ensure:
+✔ Allow SSH (port 22)
+✔ Allow HTTP (port 80)
+
+👉 Final Step:
+Click Launch Instance
+✅ Instance will start running
+
+🔗 Step 2: Connect to Instance
+👉 In EC2 Dashboard:
+Go to Instances
+Select your instance
+Click Connect
+Choose EC2 Instance Connect
+Click Connect
+✅ Terminal opens in browser
+
+🛠️ Step 3: Install Apache Web Server
+Run these commands:
+sudo yum update -y
+ sudo yum install httpd -y
+
+▶️ Step 4: Start Web Server
+sudo systemctl start httpd
+ sudo systemctl enable httpd
+
+📁 Step 5: Create Web Page
+sudo nano /var/www/html/index.html
+Paste this code:
+<html>
+ <head>
+ <title>My EC2 Website</title>
+ </head>
+ <body>
+ <h1>Welcome to My Website</h1>
+ <p>Successfully deployed on EC2</p>
+ </body>
+ </html>
+
+💾 Step 6: Save File
+Press Ctrl + O → Enter
+Press Ctrl + X
+
+🌍 Step 7: Access Website
+Copy Public IPv4 Address
+Open browser and type:
+http://your-public-ip
+✅ Your website will be displayed
+
+❗ Troubleshooting (if needed)
+Check server status:
+sudo systemctl status httpd
+Restart server:
+sudo systemctl restart httpd
+Ensure HTTP (port 80) is allowed in security group
+
+
+
+
+ 
+Exp 2: Monitor Docker Metrics
+
+💻 STEP 1: Install Docker (Ubuntu / EC2)
+sudo apt update
+ sudo apt install docker.io -y
+Start Docker:
+sudo systemctl start docker
+
+🚀 STEP 2: Run a Container
+sudo docker run -d -p 8080:80 --name mycontainer nginx
+👉 This runs a web server container
+
+📋 STEP 3: Check Running Containers
+sudo docker ps
+
+📊 STEP 4: Monitor Metrics (MAIN STEP)
+sudo docker stats
+👉 You will see:
+CPU usage
+Memory usage
+Network I/O
+Press Ctrl + C to stop
+
+🎯 STEP 5: Monitor Specific Container
+sudo docker stats mycontainer
+
+🌐 STEP 6: Generate Activity (optional)
+Open browser:
+http://your-public-ip:8080
+👉 This increases network usage
+
+📄 STEP 7: View Logs
+sudo docker logs mycontainer
+
+🛑 STEP 8: Stop Container
+sudo docker stop mycontainer
+
+
+ 
+
+
+Exp 3: Network Analysis using Nagios
+
+☁️ Step 1: Launch EC2 Instance
+Using Amazon Web Services:
+Open EC2 → Launch Instance
+Select:
+AMI: Ubuntu
+Instance Type: t2.micro
+Security Group:
+Allow SSH (22)
+Allow HTTP (80)
+Click Launch Instance
+
+🔗 Step 2: Connect to Instance
+Go to Instances
+Select instance
+Click Connect → EC2 Instance Connect
+Open browser terminal
+
+🛠️ Step 3: Install Nagios
+sudo apt update
+ sudo apt install nagios4 nagios-plugins nagios-nrpe-plugin apache2 -y
+
+▶️ Step 4: Start Services
+sudo systemctl start apache2
+ sudo systemctl start nagios4
+
+🔧 Step 5: Fix Apache Configuration (Important)
+sudo nano /etc/apache2/conf-available/nagios4.conf
+Paste:
+ScriptAlias /nagios4/cgi-bin /usr/lib/cgi-bin/nagios4
+
+ <Directory "/usr/lib/cgi-bin/nagios4">
+ 	Options ExecCGI
+ 	AllowOverride None
+ 	Require all granted
+ </Directory>
+
+ Alias /nagios4 /usr/share/nagios4/htdocs
+
+ <Directory "/usr/share/nagios4/htdocs">
+ 	Options None
+ 	AllowOverride None
+ 	Require all granted
+ </Directory>
+
+🔧 Step 6: Enable Config & Restart
+sudo a2enconf nagios4
+ sudo a2enconf nagios4-cgi
+ sudo a2enmod cgi
+ sudo systemctl restart apache2
+
+🔐 Step 7: Create Login
+sudo htpasswd -c /etc/nagios4/htpasswd.users nagiosadmin
+
+🌍 Step 8: Open Nagios Dashboard
+In browser:
+http://your-public-ip/nagios4
+Login:
+Username: nagiosadmin
+Password: (your password)
+
+📊 Step 9: Monitor Services
+Go to Services → Summary
+Observe:
+PING → OK
+HTTP → OK
+SSH → OK
+
+⚠️ Step 10: Simulate Failure
+sudo systemctl stop apache2
+👉 In dashboard:
+HTTP → CRITICAL / DOWN
+
+▶️ Step 11: Recover Service
+sudo systemctl start apache2
+👉 Status becomes OK
+
+📄 Step 12: View Logs (optional)
+sudo tail /var/log/nagios4/nagios.log
+
+
+
+
+
+
+ 
+🐳 EXPERIMENT 4: Deploy Web Application on Docker & Identify Vulnerabilities
+
+
+Procedure
+Step 1: Install Docker
+sudo apt update
+ sudo apt install docker.io -y
+ sudo systemctl start docker
+
+Step 2: Create a Web Page
+nano index.html
+Add the following content:
+<html>
+ <body>
+ <h1>Welcome to my Docker application</h1>
+ </body>
+ </html>
+Save and exit.
+
+Step 3: Run Docker Container
+sudo docker run -d -p 8080:80 --name webapp nginx
+
+Step 4: Remove Default Container
+sudo docker stop webapp
+ sudo docker rm webapp
+
+Step 5: Run Container with Custom Web Page
+sudo docker run -d -p 8080:80 \
+ -v $(pwd)/index.html:/usr/share/nginx/html/index.html \
+ --name webapp nginx
+
+Step 6: Access Web Application
+Open browser and enter:
+http://localhost:8080
+The custom webpage will be displayed.
+
+Step 7: Monitor Container
+sudo docker ps
+ sudo docker logs webapp
+ sudo docker inspect webapp
+
+Step 8: Identify Vulnerabilities
+Port 8080 is exposed
+Default configurations may be insecure
+No authentication implemented
+No HTTPS (data not encrypted)
+
+Step 9: Stop Container
+sudo docker stop webapp
+ 
+ 
+
+
+
+🔍 EXPERIMENT 5: Static Analysis using SonarQube (Simple Steps)
+
+☁️ Step 1: Launch Ubuntu (EC2 or VM)
+Using Amazon Web Services:
+Launch Ubuntu instance
+Connect using EC2 Instance Connect
+
+🛠️ Step 2: Install Java
+sudo apt update
+ sudo apt install openjdk-11-jdk -y
+
+📦 Step 3: Download SonarQube
+wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.0.65466.zip
+ sudo apt install unzip -y
+ unzip sonarqube-9.9.0.65466.zip
+
+👤 Step 4: Create Sonar User (IMPORTANT)
+sudo adduser sonar
+ sudo chown -R sonar:sonar sonarqube-9.9.0.65466
+Switch user:
+su sonar
+
+▶️ Step 5: Start SonarQube
+cd sonarqube-9.9.0.65466/bin/linux-x86-64
+ ./sonar.sh start
+
+🌍 Step 6: Open Dashboard
+Open browser:
+http://localhost:9000
+Login:
+admin / admin
+
+📥 Step 7: Install Scanner
+sudo apt install sonar-scanner -y
+
+📁 Step 8: Create Project
+mkdir myproject
+ cd myproject
+ nano test.py
+Add:
+a=10
+ b=20
+ print(a+b)
+
+⚙️ Step 9: Configure Project
+nano sonar-project.properties
+Add:
+sonar.projectKey=myproject
+ sonar.sources=.
+ sonar.host.url=http://your-public-ip:9000
+ sonar.login=admin
+
+🔍 Step 10: Run Analysis
+Sonar-scanner
+Experiment 6 : AAA Framework
+☁️ Step 1: Launch & Connect
+Launch Ubuntu instance on Amazon Web Services
+Connect via EC2 Instance Connect (browser terminal)
+
+⚙️ Step 2: Enable SSH (usually already on)
+sudo apt update -y
+sudo apt install openssh-server -y
+sudo systemctl start ssh
+
+🌐 Step 3: Get Public IP
+Copy from EC2 dashboard
+ 👉 Use this as your-ip
+
+🔐 PART A: AUTHENTICATION (Login)
+👉 Create a user
+sudo adduser user1
+👉 Login via SSH (from your local terminal)
+ssh user1@your-ip
+👉 Enter password → login success = Authentication ✔
+
+🔑 PART B: AUTHORIZATION (Access control)
+👉 Create a protected folder
+sudo mkdir /secure-data
+sudo touch /secure-data/file.txt
+👉 Restrict access (only root)
+sudo chmod 700 /secure-data
+👉 Test access as user
+su user1
+cd /secure-data
+👉 Output:
+ ❌ Permission denied → Authorization ✔
+
+📊 PART C: ACCOUNTING (Logs)
+👉 View login history
+last
+👉 View authentication logs
+sudo tail -f /var/log/auth.log
+👉 Shows:
+Successful logins
+Failed attempts
+✔ Accounting working
+
+🚨 OPTIONAL: Unauthorized Access
+ssh unknown@your-ip
+👉 Fails → recorded in logs
+
+
+
+Experiment 7: CI/CD Pipeline with Role-Based Authentication
+PART 1: JENKINS SETUP
+sudo apt update -y
+ sudo apt install openjdk-17-jdk -y
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update -y
+ sudo apt install jenkins -y
+sudo systemctl start jenkins
+ sudo systemctl enable jenkins
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+🌐 Open:
+ http://<VM-IP>:8080
+🐳 PART 2: DOCKER SETUP
+sudo apt install docker.io -y
+ sudo systemctl start docker
+ sudo systemctl enable docker
+sudo usermod -aG docker jenkins
+ sudo systemctl restart jenkins
+📁 PART 3: PROJECT SETUP
+mkdir ci-cd
+ cd ci-cd
+gedit app.py
+ print("Hello CI/CD")
+gedit Dockerfile
+ FROM python:3.9
+ WORKDIR /app
+ COPY . .
+ CMD ["python", "app.py"]
+
+🚀 PART 4: PUSH TO GITHUB
+git init
+ git add .
+ git commit -m "init"
+ git branch -M main
+ git remote add origin <GITHUB-URL>
+ git push -u origin main
+
+🔁 PART 5: PIPELINE
+Jenkins → New Item → Pipeline
+pipeline {
+ agent any
+ stages {
+ stage('Clone') {
+ steps { git '<GITHUB-URL>' }
+ }
+ stage('Build') {
+ steps { sh 'docker build -t app .' }
+ }
+ stage('Run') {
+ steps { sh 'docker run -d -p 5000:5000 app' }
+ }
+ }
+ }
+▶️ Build Now
+✔ docker ps
+
+🔐 PART 6: RBAC
+Manage Jenkins → Security → Role-Based
+👑 Admin → full access
+ 👨‍💻 Dev → build access
+ 👀 Viewer → read only
+Assign users accordingly
+Experiment 8: VM Authentication Using Ingress & Egress Rules
+PART A: AWS IMPLEMENTATION
+🚀 Step 1: Launch EC2
+AWS → EC2 → Launch Instance
+Name: VM-Security-Lab
+AMI: Ubuntu / Amazon Linux
+Instance: t2.micro
+Key Pair: vm-key
+Security Group: vm-sg
+
+🔐 Step 2: Ingress Rules
+✔ SSH → Port 22 → My IP
+ ✔ HTTP → Port 80 → 0.0.0.0/0
+🔗 Step 3: Connect VM
+chmod 400 vm-key.pem
+ ssh -i vm-key.pem ec2-user@<PUBLIC-IP>
+
+🌐 Step 4: Install Web Server
+sudo yum update -y
+ sudo yum install httpd -y
+ sudo systemctl start httpd
+ sudo systemctl enable httpd
+👉 Open:
+ http://<PUBLIC-IP>
+
+🚫 Step 5: Egress Rules
+✔ HTTP → Port 80 → 142.250.0.0/15
+ ✔ HTTPS → Port 443 → 0.0.0.0/0
+
+🧪 Step 6: Test
+✔ ssh -i vm-key.pem ec2-user@<PUBLIC-IP>
+Inside VM:
+ ✔ curl http://google.com
+
+🔍 Step 7: Port Scan
+nmap -p 22,80 <PUBLIC-IP>
+☁️ PART B: AZURE IMPLEMENTATION
+🚀 Step 1: Create VM
+Azure → Virtual Machines → Create
+Name: vm-security-lab
+Image: Ubuntu
+
+🔐 Step 2: Create NSG
+Create Network Security Group: vm-nsg
+
+📥 Step 3: Inbound Rules
+✔ Port 22 → My IP → Allow
+ ✔ Port 80 → Any → Allow
+
+📤 Step 4: Outbound Rules
+✔ Port 80 → 142.250.0.0/15 → Allow
+ ❌ All → Deny
+
+🔗 Step 5: Connect
+ssh username@<PUBLIC-IP>
+
+🧪 Step 6: Test
+✔ SSH works
+ ✔ HTTP works
+
+📊 Step 7: Enable Logs
+AWS → VPC → Flow Logs
+ Azure → Network Watcher → NSG Flow Logs
